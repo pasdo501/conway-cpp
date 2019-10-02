@@ -3,6 +3,7 @@
 #include <vector>
 #include <chrono>
 #include <stack>
+#include <omp.h>
 
 using namespace std;
 
@@ -221,23 +222,35 @@ class Grid
         {
             stack<Cell*> s;
             
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    Cell *c = grid_[i][j];
-                    unsigned char state = c->get_state();
-                    if (state == 0) continue;
+            #pragma omp parallel
+            {
+                int t_id = omp_get_thread_num();
+                int t_total = omp_get_num_threads();
 
-                    unsigned char neighbour_count = state >> 1;
-                    if (state & 0x01) {
-                        // Live cell
-                        if (neighbour_count >= OVERCROWDING_THRESH ||
-                            neighbour_count <= ISOLATAION_TRESH) {
-                            s.push(c);
-                        }
-                    } else {
-                        // Dead cell
-                        if (neighbour_count == BIRTH_THRESH) {
-                            s.push(c);
+                int seg_length = height / t_total;
+                int start = seg_length * t_id;
+                int end = t_id == t_total - 1 ? height : seg_length * (t_id + 1);
+
+                for (int i = start; i < end; i++) {
+                    for (int j = start; j < end; j++) {
+                        Cell *c = grid_[i][j];
+                        unsigned char state = c->get_state();
+                        if (state == 0) continue;
+
+                        unsigned char neighbour_count = state >> 1;
+                        if (state & 0x01) {
+                            // Live cell
+                            if (neighbour_count >= OVERCROWDING_THRESH ||
+                                neighbour_count <= ISOLATAION_TRESH) {
+                                #pragma omp critical
+                                { s.push(c); }
+                            }
+                        } else {
+                            // Dead cell
+                            if (neighbour_count == BIRTH_THRESH) {
+                                #pragma omp critical
+                                { s.push(c); }
+                            }
                         }
                     }
                 }
@@ -283,35 +296,6 @@ int main()
     cout << "Time: " << duration << " ms" << endl;
     cout << generations_per_second << " generations / second" << endl;
 
-
-    // OLD OLD OLD
-    // unsigned char **grid = new unsigned char *[size];
-
-    // for (int i = 0; i < size; i++) {
-    //     grid[i] = new unsigned char[size];
-    //     for(int j = 0; j < size; j++) {
-    //         if (rand() % 10 < int_prob) {
-    //             grid[i][j] = 0x01;
-    //         } else {
-    //             grid[i][j] = 0x00;
-    //         }
-    //     }
-    // }
-
-    // set_neighbours(grid, size);
-    // auto start = chrono::high_resolution_clock::now();
-    // while (generation < max_generations) {
-    //     generation_tick(grid, size);
-    //     generation++;
-    // }
-    // auto stop = chrono::high_resolution_clock::now();
-    // auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
-    // int generations_per_second = (int) (((double) generation / (double) duration) * 1000);
-    // cout << "Time: " << duration << " ms" << endl;
-    // cout << generations_per_second << " generations / second" << endl;
-
-    // cleanup(grid, size);
-    // END OLD END OLD
     return 0;
     // debug_display(grid, size);
 }
