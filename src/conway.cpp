@@ -162,7 +162,7 @@ bool Grid::alive_at(int row, int col)
 void Grid::next_tick()
 {
     stack<Cell*> s;
-            
+    
     #pragma omp parallel num_threads(6)
     {
         int t_id = omp_get_thread_num();

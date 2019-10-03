@@ -1,6 +1,6 @@
 # Conway's Game of Life (C++)
 
-Conway's Game of Life implemented in C++ - multiple implementation variations.
+Conway's Game of Life implemented in C++ - multiple implementation variations. The main version uses [SFML](https://www.sfml-dev.org/index.php) for rendering the simulation.
 
 ## Build
 
@@ -9,7 +9,7 @@ From the project root run
 make
 ```
 
-**NOTE -** This program currently depends on [OpenMP ](https://www.openmp.org/), so the compiler needs to support it. Additionally, it also depends on [SFML](https://www.sfml-dev.org/index.php) being installed on the system to compile.
+**NOTE -** This program currently depends on [OpenMP](https://www.openmp.org/), so the compiler needs to support it. Additionally, it also depends on [SFML](https://www.sfml-dev.org/index.php) being installed on the system to compile.
 
 ## Usage
 - To run the main program:
@@ -22,6 +22,10 @@ make
     The simulation can be stopped before it's completed by terminating the program, closing the window, or pressing the Escape key.
 
 - There are also a couple of older versions of the program, kept for comparison. No graphical component has been implemented for these yet.
+
+## General Notes
+
+- This implementation has currently only been tested on Linux (Ubuntu 18.04.1).
 
 ## Memory Leak Notes
 
