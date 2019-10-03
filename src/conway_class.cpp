@@ -204,6 +204,11 @@ class Grid
             }
         }
 
+        bool alive_at(int row, int col)
+        {
+            return grid_[row][col]->is_alive();
+        }
+
         void display()
         {
             for (int i = 0; i < height; i++) {
@@ -230,6 +235,7 @@ class Grid
                 int seg_length = height / t_total;
                 int start = seg_length * t_id;
                 int end = t_id == t_total - 1 ? height : seg_length * (t_id + 1);
+                stack<Cell*> t_stack;
 
                 for (int i = start; i < end; i++) {
                     for (int j = start; j < end; j++) {
@@ -242,16 +248,19 @@ class Grid
                             // Live cell
                             if (neighbour_count >= OVERCROWDING_THRESH ||
                                 neighbour_count <= ISOLATAION_TRESH) {
-                                #pragma omp critical
-                                { s.push(c); }
+                                t_stack.push(c);
                             }
                         } else {
                             // Dead cell
-                            if (neighbour_count == BIRTH_THRESH) {
-                                #pragma omp critical
-                                { s.push(c); }
-                            }
+                            if (neighbour_count == BIRTH_THRESH) t_stack.push(c);
                         }
+                    }
+                }
+                #pragma omp critical
+                {
+                    while (!t_stack.empty()) {
+                        s.push(t_stack.top());
+                        t_stack.pop();
                     }
                 }
             }
@@ -284,9 +293,7 @@ int main()
     Grid *g = new Grid(size, size, int_prob);
     auto start = chrono::high_resolution_clock::now();
     while (generation < max_generations) {
-        // g->display();
         g->next_tick();
-        // cout << "---------------------------------" << endl;
         generation++;
     }
     delete g;
