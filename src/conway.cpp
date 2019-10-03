@@ -1,299 +1,207 @@
-#include <iostream>
+#include "conway.hpp"
 #include <cstdlib>
 #include <vector>
+#include <stack>
 #include <chrono>
+#include <omp.h>
 
 using namespace std;
+using namespace conway;
 
-static const int BIRTH_THRESH = 3;
-static const int ISOLATAION_TRESH = 1;
-static const int OVERCROWDING_THRESH = 4;
-
-void debug_display(unsigned char **grid, int n)
+void Grid::Cell::set_neighbours(Grid &g, int row, int col, int height, int width)
 {
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            cout << i << ", " << j << ": " << ((int) grid[i][j]) << endl;
-        }
-    }
-}
+    Cell *temp;
 
-void set_neighbours(unsigned char **grid, int n)
-{
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            unsigned char neighbours = 0x00;
+    if (row == 0) {
+        // TOP ROW - WRAP TO BOTTOM
+        // TOP LEFT
+        temp = col == 0
+            ? g.get(height-1, width-1)
+            : g.get(height-1, col-1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
 
-            // TOP
-            if (i == 0) {
-                // LEFT
-                if (j == 0) {
-                    if (grid[n-1][n-1] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[n-1][j-1] & 0x01) neighbours += 1;
-                }
+        // TOP CENTER
+        temp = g.get(height-1, col);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
 
-                // CENTER
-                if (grid[n-1][j] & 0x01) neighbours += 1;
-
-                // RIGHT
-                if (j == n-1) {
-                    if (grid[n-1][0] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[n-1][j+1] & 0x01) neighbours += 1;
-                }
-            } else {
-                // LEFT
-                if (j == 0) {
-                    if (grid[i-1][n-1] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[i-1][j-1] & 0x01) neighbours += 1;
-                }
-
-                // CENTER
-                if (grid[i-1][j] & 0x01) neighbours += 1;
-
-                // RIGHT
-                if (j == n-1) {
-                    if (grid[i-1][0] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[i-1][j+1] & 0x01) neighbours += 1;
-                }
-            }
-
-            // LEFT
-            if (j == 0) {
-                if (grid[i][n-1] & 0x01) neighbours += 1;
-            } else {
-                if (grid[i][j-1] & 0x01) neighbours += 1;
-            }
-
-            // RIGHT
-            if (j == n-1) {
-                if (grid[i][0] & 0x01) neighbours += 1;
-            } else {
-                if (grid[i][j+1] & 0x01) neighbours += 1;
-            }
-
-            // BOTTOM
-            if (i == n-1) {
-                // LEFT
-                if (j == 0) {
-                    if (grid[0][n-1] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[0][j-1] & 0x01) neighbours += 1;
-                }
-
-                // CENTER
-                if (grid[0][j] & 0x01) neighbours += 1;
-
-                // RIGHT
-                if (j == n-1) {
-                    if (grid[0][0] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[0][j+1] & 0x01) neighbours += 1;
-                }
-            } else {
-                // LEFT
-                if (j == 0) {
-                    if (grid[i+1][n-1] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[i+1][j-1] & 0x01) neighbours += 1;
-                }
-
-                // CENTER
-                if (grid[i+1][j] & 0x01) neighbours += 1;
-
-                // RIGHT
-                if (j == n-1) {
-                    if (grid[i+1][0] & 0x01) neighbours += 1;
-                } else {
-                    if (grid[i+1][j+1] & 0x01) neighbours += 1;
-                }
-            }
-
-            neighbours <<= 1;
-            grid[i][j] |= neighbours;
-        }
-    }
-}
-
-void toggle_cell(unsigned char **grid, int i, int j, int n)
-{
-    int delta = (grid[i][j] & 0x01) ? -2 : 2;
-    grid[i][j] ^= 0x01;
-
-    // Update neighbours
-    // TOP
-    if (i == 0) {
-        // LEFT
-        if (j == 0) {
-            grid[n-1][n-1] += delta;
-        } else {
-            grid[n-1][j-1] += delta;
-        }
-
-        // CENTER
-        grid[n-1][j] += delta;
-
-        // RIGHT
-        if (j == n-1) {
-            grid[n-1][0] += delta;
-        } else {
-            grid[n-1][j+1] += delta;
-        }
+        // TOP RIGHT
+        temp = col == width - 1
+            ? g.get(height-1, 0)
+            : g.get(height-1, col+1);
+        if (temp->is_alive()) increase_neighbour_count();
+        neighbours.push_back(temp);
     } else {
-        // LEFT
-        if (j == 0) {
-            grid[i-1][n-1] += delta;
-        } else {
-            grid[i-1][j-1] += delta;
-        }
+        // TOP LEFT
+        temp = col == 0
+            ? g.get(row-1, width-1)
+            : g.get(row-1, col-1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
 
-        // CENTER
-        grid[i-1][j] += delta;
+        // TOP CENTER
+        temp = g.get(row-1, col);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
 
-        // RIGHT
-        if (j == n-1) {
-            grid[i-1][0] += delta;
-        } else {
-            grid[i-1][j+1] += delta;
-        }
+        // TOP RIGHT
+        temp = col == width-1
+            ? g.get(row-1, 0)
+            : g.get(row-1, col+1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
     }
 
     // LEFT
-    if (j == 0) {
-        grid[i][n-1] += delta;
-    } else {
-        grid[i][j-1] += delta;
-    }
+    temp = col == 0
+        ? g.get(row, width-1)
+        : g.get(row, col-1);
+    neighbours.push_back(temp);
+    if (temp->is_alive()) increase_neighbour_count();
 
     // RIGHT
-    if (j == n-1) {
-        grid[i][0] += delta;
+    temp = col == width - 1
+        ? g.get(row, 0)
+        : g.get(row, col+1);
+    neighbours.push_back(temp);
+    if (temp->is_alive()) increase_neighbour_count();
+
+    if (row == height-1) {
+        // BOTTOM ROW - WRAP TO TOP
+        // BOTTOM LEFT
+        temp = col == 0
+            ? g.get(0, width - 1)
+            : g.get(0, col - 1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
+
+        // BOTTOM CENTER
+        temp = g.get(0, col);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
+
+        // BOTTOM RIGHT
+        temp = col == width - 1
+            ? g.get(0, 0)
+            : g.get(0, col+1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
     } else {
-        grid[i][j+1] += delta;
+        // BOTTOM LEFT
+        temp = col == 0
+            ? g.get(row+1, width-1)
+            : g.get(row+1, col-1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
+
+        // BOTTOM CENTER
+        temp = g.get(row+1, col);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
+
+        // BOTTOM RIGHT
+        temp = col == height-1
+            ? g.get(row+1, 0)
+            : g.get(row+1, col+1);
+        neighbours.push_back(temp);
+        if (temp->is_alive()) increase_neighbour_count();
     }
+}
 
-    // BOTTOM
-    if (i == n-1) {
-        // LEFT
-        if (j == 0) {
-            grid[0][n-1] += delta;
-        } else {
-            grid[0][j-1] += delta;
-        }
-
-        // CENTER
-        grid[0][j] += delta;
-
-        // RIGHT
-        if (j == n-1) {
-            grid[0][0] += delta;
-        } else {
-            grid[0][j+1] += delta;
-        }
+void Grid::Cell::toggle_cell()
+{
+    if (is_alive()) {
+        for (auto neighbour : neighbours)
+            neighbour->decrease_neighbour_count();
     } else {
-        // LEFT
-        if (j == 0) {
-            grid[i+1][n-1] += delta;
-        } else {
-            grid[i+1][j-1] += delta;
-        }
-
-        // CENTER
-        grid[i+1][j] += delta;
-
-        // RIGHT
-        if (j == n-1) {
-            grid[i+1][0] += delta;
-        } else {
-            grid[i+1][j+1] += delta;
-        }
+        for (auto neighbour : neighbours)
+            neighbour->increase_neighbour_count();
     }
+    state ^= 0x01;
 }
 
-void generation_tick(unsigned char **grid, int n)
+Grid::Grid(int height, int width, int prob_alive)
 {
-    vector<vector<int>> c;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            if (grid[i][j] == 0) continue;
-
-            int neighbours = grid[i][j] >> 1;
-            if (grid[i][j] & 0x01) {
-                // LIVE CELL
-                if (neighbours >= OVERCROWDING_THRESH ||
-                    neighbours <= ISOLATAION_TRESH) {
-                    c.push_back({i, j});
-                }
-            } else {
-                // DEAD CELL
-                if (neighbours == BIRTH_THRESH) c.push_back({i, j});
-            }
-        }
-    }
-
-    while (c.size()) {
-        vector<int> curr = c.back();
-        c.pop_back();
-        toggle_cell(grid, curr[0], curr[1], n);
-    }
-}
-
-void cleanup(unsigned char **grid, int n)
-{
-    for (int i = 0; i < n; i++) {
-        delete [] grid[i];
-    }
-    delete [] grid;
-}
-
-int main()
-{
-    int size;
-    float prob_alive;
-    int int_prob;
-    int max_generations;
-    int generation = 0;
-
-    cout << "Enter size of grid (same width & height): ";
-    cin >> size;
-
-    cout << "Enter chance of being alive (float between 0 & 1): ";
-    cin >> prob_alive;
-    int_prob = (int) (prob_alive * 10);
-
-    cout << "Enter the number of generations: ";
-    cin >> max_generations;
-
     srand(time(NULL));
-    unsigned char **grid = new unsigned char *[size];
-
-    for (int i = 0; i < size; i++) {
-        grid[i] = new unsigned char[size];
-        for(int j = 0; j < size; j++) {
-            if (rand() % 10 < int_prob) {
-                grid[i][j] = 0x01;
-            } else {
-                grid[i][j] = 0x00;
-            }
+    this->width = width;
+    this->height = height;
+    for (int i = 0; i < height; i++) {
+        vector<Cell*> row;
+        grid_.push_back(row);
+        for (int j = 0; j < width; j++) {
+            unsigned char initial_state = rand() % 10 < prob_alive 
+                ? 0x01
+                : 0x00;
+            Cell *c = new Cell(initial_state);
+            grid_[i].push_back(c);
         }
     }
 
-    set_neighbours(grid, size);
-    auto start = chrono::high_resolution_clock::now();
-    while (generation < max_generations) {
-        generation_tick(grid, size);
-        generation++;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            grid_[i][j]->set_neighbours(*this, i, j, height, width);
+        }
     }
-    auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
-    int generations_per_second = (int) (((double) generation / (double) duration) * 1000);
-    cout << "Time: " << duration << " ms" << endl;
-    cout << generations_per_second << " generations / second" << endl;
+}
 
-    cleanup(grid, size);
-    return 0;
-    // debug_display(grid, size);
+Grid::~Grid()
+{
+    for (int i = 0; i < height; i++) {
+        for (auto c : grid_[i]) {
+            delete c;
+        }
+    }
+}
+
+bool Grid::alive_at(int row, int col)
+{
+    return grid_[row][col]->is_alive();
+}
+
+void Grid::next_tick()
+{
+    stack<Cell*> s;
+            
+    #pragma omp parallel num_threads(6)
+    {
+        int t_id = omp_get_thread_num();
+        int t_total = omp_get_num_threads();
+
+        int seg_length = height / t_total;
+        int start = seg_length * t_id;
+        int end = t_id == t_total - 1 ? height : seg_length * (t_id + 1);
+        stack<Cell*> t_stack;
+
+        for (int i = start; i < end; i++) {
+            for (int j = 0; j < width; j++) {
+                Cell *c = grid_[i][j];
+                unsigned char state = c->get_state();
+                if (state == 0) continue;
+
+                unsigned char neighbour_count = state >> 1;
+                if (state & 0x01) {
+                    // Live cell
+                    if (neighbour_count >= OVERCROWDING_THRESH ||
+                        neighbour_count <= ISOLATAION_TRESH) {
+                        t_stack.push(c);
+                    }
+                } else {
+                    // Dead cell
+                    if (neighbour_count == BIRTH_THRESH) t_stack.push(c);
+                }
+            }
+        }
+        #pragma omp critical
+        {
+            while (!t_stack.empty()) {
+                s.push(t_stack.top());
+                t_stack.pop();
+            }
+        }
+    }
+    while (!s.empty()) {
+        s.top()->toggle_cell();
+        s.pop();
+    }
 }
