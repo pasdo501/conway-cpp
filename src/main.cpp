@@ -7,14 +7,17 @@ using namespace std;
 
 int main()
 {
-    int size;
+    int width;
+    int height;
     float prob_alive;
     int int_prob;
     int max_generations;
     int generation = 0;
 
-    cout << "Enter size of grid (same width & height): ";
-    cin >> size;
+    cout << "Enter width of grid: ";
+    cin >> width;
+    cout << "Enter height of grid: ";
+    cin >> height;
 
     cout << "Enter chance of being alive (float between 0 & 1): ";
     cin >> prob_alive;
@@ -23,8 +26,8 @@ int main()
     cout << "Enter the number of generations: ";
     cin >> max_generations;
 
-    conway::Grid *g = new conway::Grid(size, size, int_prob);
-    sf::RenderWindow window(sf::VideoMode(size, size), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
+    conway::Grid *g = new conway::Grid(height, width, int_prob);
+    sf::RenderWindow window(sf::VideoMode(width, height), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
     auto start = chrono::high_resolution_clock::now();
@@ -53,8 +56,8 @@ int main()
 
         if (generation != 0) g->next_tick();
         sf::VertexArray p(sf::Points);
-        for(int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        for(int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 if (g->alive_at(i, j)) {
                     float x = static_cast<float>(j);
                     float y = static_cast<float>(i);

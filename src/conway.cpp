@@ -101,7 +101,7 @@ void Grid::Cell::set_neighbours(Grid &g, int row, int col, int height, int width
         if (temp->is_alive()) increase_neighbour_count();
 
         // BOTTOM RIGHT
-        temp = col == height-1
+        temp = col == width - 1
             ? g.get(row+1, 0)
             : g.get(row+1, col+1);
         neighbours.push_back(temp);
@@ -162,7 +162,7 @@ bool Grid::alive_at(int row, int col)
 void Grid::next_tick()
 {
     stack<Cell*> s;
-    
+
     #pragma omp parallel num_threads(6)
     {
         int t_id = omp_get_thread_num();
