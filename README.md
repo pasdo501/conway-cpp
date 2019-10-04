@@ -1,6 +1,6 @@
 # Conway's Game of Life (C++)
 
-Conway's Game of Life implemented in C++ - multiple implementation variations. The main version uses [SFML](https://www.sfml-dev.org/index.php) for rendering the simulation.
+Conway's Game of Life implemented in C++. Program uses [SFML](https://www.sfml-dev.org/index.php) for rendering the simulation.
 
 ## Build
 
@@ -12,20 +12,35 @@ make
 **NOTE -** This program currently depends on [OpenMP](https://www.openmp.org/), so the compiler needs to support it. Additionally, it also depends on [SFML](https://www.sfml-dev.org/index.php) being installed on the system to compile.
 
 ## Usage
-- To run the main program:
-    ```shell
-    bin/conway
-    ```
+To run the main program:
+```shell
+bin/conway
+```
 
-    Then follow the command line prompts (enter size, probability of cell being alive & generations). Note that currently only a square grid can be created.
+Then follow the command line prompts (enter size, probability of cell being alive & generations). Note that currently only a square grid can be created.
 
-    The simulation can be stopped before it's completed by terminating the program, closing the window, or pressing the Escape key.
+The simulation can be stopped before it's completed by terminating the program, closing the window, or pressing the Escape key.
 
-- There are also a couple of older versions of the program, kept for comparison. No graphical component has been implemented for these yet.
+## Implementation Notes
+
+The implementation is heavily based on one of [Michael Abrash's versions of the simulation](http://www.jagregory.com/abrash-black-book/#chapter-18-its-a-plain-wonderful-life) - see Listing 17.5 L17-5.CPP. However, amongst other things, rather than finding each cell's neighbours on each iteration, I just store them on each cell (since there is not really a space constraint as there is for the linked version).
+
+Each cell therefore contains a list of its neighbours, as well as its state - which is stored as a byte. The byte is split up as follows:
+
+    XXXN NNNS
+
+`X` are unused bits; `N` are bits used for storing the number of the cell's live neighbours; `S` is the bit responsible for storing the cell's state (alive / dead).
+
+<br/>
+
+---
+
+<br/>
 
 ## General Notes
 
 - This implementation has currently only been tested on Linux (Ubuntu 18.04.1).
+- There is a Visual Studio solution Windows currently [in a separate branch](https://github.com/pasdo501/conway-cpp/tree/windows).
 
 ## Memory Leak Notes
 

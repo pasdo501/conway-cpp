@@ -4,7 +4,7 @@
 namespace conway
 {
     static const int BIRTH_THRESH = 3;
-    static const int ISOLATAION_TRESH = 1;
+    static const int ISOLATION_THRESH = 1;
     static const int OVERCROWDING_THRESH = 4;
 
     class Grid

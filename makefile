@@ -1,10 +1,10 @@
-SRC = src
+SRC = ./src
 BIN = ./bin
-BUILD = build
-PROG = conway conway_old conway_nowrap
+BUILD = ./build
+PROG = conway
 OBJ = $(addprefix $(BIN)/, $(PROG))
 CC = g++
-FLAGS = -Wall -O2
+FLAGS = -Wall -O3
 SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 vpath %.cpp $(SRC)
 vpath %.hpp $(SRC)
@@ -26,12 +26,6 @@ conway.o: conway.cpp
 
 main.o: main.cpp
 	$(CC) $(FLAGS) -c -o $(BUILD)/main.o $(SRC)/main.cpp $(SFML_FLAGS)
-
-$(BIN)/conway_old: conway_old.cpp
-	$(CC) $(FLAGS) -o $(BIN)/conway_old $(SRC)/conway_old.cpp
-
-$(BIN)/conway_nowrap: conway_nowrap.cpp
-	$(CC) $(FLAGS) -o $(BIN)/conway_nowrap $(SRC)/conway_nowrap.cpp
 
 clean:
 	rm -r $(BIN) $(BUILD)

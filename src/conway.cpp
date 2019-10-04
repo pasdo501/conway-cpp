@@ -183,7 +183,7 @@ void Grid::next_tick()
                 if (state & 0x01) {
                     // Live cell
                     if (neighbour_count >= OVERCROWDING_THRESH ||
-                        neighbour_count <= ISOLATAION_TRESH) {
+                        neighbour_count <= ISOLATION_THRESH) {
                         t_stack.push(c);
                     }
                 } else {
