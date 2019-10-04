@@ -1,0 +1,18 @@
+﻿  conway.cpp
+  main.cpp
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\conway.cpp(129,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,65): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,65): warning C4244:         with
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,65): warning C4244:         [
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,65): warning C4244:             T=float
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,65): warning C4244:         ]
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,47): warning C4244: 'argument': conversion from 'unsigned int' to 'T', possible loss of data
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,47): warning C4244:         with
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,47): warning C4244:         [
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,47): warning C4244:             T=float
+D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Conway-CPP\main.cpp(43,47): warning C4244:         ]
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 609 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Conway-CPP.vcxproj -> D:\ProgramData\source\repos\ConwayCpp\Conway-CPP\Release\Conway-CPP.exe
