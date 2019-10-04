@@ -163,7 +163,7 @@ void Grid::next_tick()
 {
     stack<Cell*> s;
 
-    #pragma omp parallel num_threads(6)
+    #pragma omp parallel
     {
         int t_id = omp_get_thread_num();
         int t_total = omp_get_num_threads();
