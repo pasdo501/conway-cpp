@@ -9,7 +9,8 @@ From the project root run
 make
 ```
 
-**NOTE -** This program currently depends on [OpenMP](https://www.openmp.org/), so the compiler needs to support it. Additionally, it also depends on [SFML](https://www.sfml-dev.org/index.php) being installed on the system to compile.
+**NOTE -** This program currently depends on [OpenMP](https://www.openmp.org/), so your compiler needs to support it. [See a list of supported compilers](https://www.openmp.org/resources/openmp-compilers-tools/). 
+Additionally, you will also need [SFML](https://www.sfml-dev.org/index.php) installed on the system to compile - chances are, [it should be trivial if you're on Linux](https://www.sfml-dev.org/tutorials/2.5/start-linux.php).
 
 ## Usage
 To run the main program:
@@ -17,7 +18,7 @@ To run the main program:
 bin/conway
 ```
 
-Then follow the command line prompts (enter size, probability of cell being alive & generations). Note that currently only a square grid can be created.
+Then follow the command line prompts (enter size, probability of cell being alive & generations).
 
 The simulation can be stopped before it's completed by terminating the program, closing the window, or pressing the Escape key.
 

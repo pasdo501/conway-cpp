@@ -2,31 +2,24 @@
 #include <chrono>
 #include <SFML/Graphics.hpp>
 #include "conway.hpp"
+#include "cli_args.hpp"
 
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
-    int width;
-    int height;
-    float prob_alive;
-    int int_prob;
-    int max_generations;
+    cli_args::Parser parser = cli_args::Parser();
+    if(EXIT_FAILURE == parser.parse_args(argc, argv)) {
+        return EXIT_FAILURE;
+    }
+
+    int height = parser.get_height();
+    int width = parser.get_width();
+    int prob_alive = parser.get_prob_alive();
+    int max_generations = parser.get_generations();
     int generation = 0;
 
-    cout << "Enter width of grid: ";
-    cin >> width;
-    cout << "Enter height of grid: ";
-    cin >> height;
-
-    cout << "Enter chance of being alive (float between 0 & 1): ";
-    cin >> prob_alive;
-    int_prob = (int) (prob_alive * 10);
-
-    cout << "Enter the number of generations: ";
-    cin >> max_generations;
-
-    conway::Grid *g = new conway::Grid(height, width, int_prob);
+    conway::Grid *g = new conway::Grid(height, width, prob_alive);
     sf::RenderWindow window(sf::VideoMode(width, height), "Conway's Game of Life", sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
 
@@ -70,13 +63,14 @@ int main()
         window.display();
         generation++;
     }
+
     window.close();
     delete g;
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
     int generations_per_second = (int) (((double) generation / (double) duration) * 1000);
-    cout << "Time: " << duration << " ms" << endl;
-    cout << generations_per_second << " generations / second" << endl;
+    std::cout << "Time: " << duration << " ms" << std::endl;
+    std::cout << generations_per_second << " generations / second" << std::endl;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
