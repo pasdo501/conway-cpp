@@ -130,7 +130,7 @@ Grid::Grid(int height, int width, int prob_alive)
         vector<Cell*> row;
         grid_.push_back(row);
         for (int j = 0; j < width; j++) {
-            unsigned char initial_state = rand() % 10 < prob_alive 
+            unsigned char initial_state = rand() % 100 < prob_alive 
                 ? 0x01
                 : 0x00;
             Cell *c = new Cell(initial_state);

@@ -116,7 +116,7 @@ int Parser::parse_args(int argc, char *argv[])
         this->height = height;
         this->width = width;
         this->generations = max_generations;
-        this->prob_alive = static_cast<int>(prob_alive * 10);
+        this->prob_alive = static_cast<int>(prob_alive * 100);
         return EXIT_SUCCESS;
     }
 }
