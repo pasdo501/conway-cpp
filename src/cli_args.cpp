@@ -25,25 +25,54 @@ int Parser::parse_args(int argc, char *argv[])
         { "help", no_argument, 0, 'i' }
     };
 
-    while ((opt = getopt_long(argc, argv, ":w:h:p:g:", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, ":w:h:p:g:i", long_options, &option_index)) != -1) {
         switch (opt)
         {
         case 'w':
-            width = stoi(optarg);
+            try {
+                width = stoi(optarg);
+            } catch(invalid_argument&) {
+                cerr << "Invalid argument for width: '" << optarg << "'" << endl;
+                return EXIT_FAILURE;
+            }
             break;
         case 'h':
-            height = stoi(optarg);
+            try {
+                height = stoi(optarg);
+            } catch (invalid_argument&) {
+                cerr << "Invalid argument for height: '" << optarg << "'" << endl;
+                return EXIT_FAILURE;
+            }
             break;
         case 'p':
-            prob_alive = stof(optarg);
-            // prob_alive = static_cast<float>(*optarg);
+            try {
+                prob_alive = stof(optarg);
+            } catch (invalid_argument&) {
+                cerr << "Invalid argument for probability: '" << optarg << "'" << endl;
+                return EXIT_FAILURE;
+            }
             break;
         case 'g':
-            max_generations = stoi(optarg);
+            try {
+                max_generations = stoi(optarg);
+            } catch (invalid_argument&) {
+                cerr << "Invalid argument for generations: '" << optarg << "'" << endl;
+                return EXIT_FAILURE;
+            }
             break;
         case 'i':
-            cout << "Help: not implemented" << endl;
-            break;
+            cout << "Usage: bin/conway [options]" << endl;
+            cout << "Options" << endl;
+            cout << "-----------------------------------------------------------" << endl;
+            cout << "-w / --width <width>                  The width of the grid" << endl;
+            cout << "-h / --height <height>                The height of the grid" << endl;
+            cout << "-p / --probability <probability>      The probability of each cell being alive at the start of the simulation" << endl;
+            cout << "-g / --generation <generations>       The number of generations the simulation will run for" << endl;
+            cout << "-i / --help                           Display this help text again" << endl;
+            cout << "width, height, and generations all require positive integers as input" << endl;
+            cout << "probability takes a positive float between 0 and 1.0 inclusive" << endl;
+            cout << "\nYou can enter as many or as few options as you wish; remaining options will be requested by the command line." << endl;
+            return EXIT_FAILURE;
         case ':':
             cout << "Error: Option '" << (get_optstring_by_char(static_cast<char>(optopt))) << "' needs a value" << endl;
             errors += 1;
@@ -54,7 +83,7 @@ int Parser::parse_args(int argc, char *argv[])
         }
     }
 
-    if (errors > 0) return 1;
+    if (errors > 0) return EXIT_FAILURE;
 
     if (width == -1) {
         cout << "Enter width of grid: ";
@@ -104,7 +133,7 @@ void Parser::display_errors(int errors)
         cout << "Invalid probability entered (needs to be between 0 & 1 inclusive)" << endl;
     
     if (errors & Errors::invalid_width)
-        cout << "Invalid width entered (needs to be greater than 0" << endl;
+        cout << "Invalid width entered (needs to be greater than 0)" << endl;
 }
 
 string Parser::get_optstring_by_char(char c)

@@ -15,10 +15,17 @@ Additionally, you will also need [SFML](https://www.sfml-dev.org/index.php) inst
 ## Usage
 To run the main program:
 ```shell
-bin/conway
+bin/conway [options]
 ```
 
-Then follow the command line prompts (enter size, probability of cell being alive & generations).
+Available options are:
+- `-w / --width <width>` The width of the grid
+- `-h / --height <height>` The height of the grid
+- `-p / --probability <probability>` The probability of each cell being alive at the start of the simulation
+- `-g / --generations <generations>` The number of generations the simulation will run for
+- `-i / --help` Displays help text
+
+Then possibly follow the command line prompts. There will be none if all arguments are supplied in the initial command (otherwise, you will be asked to enter size, probability of cell being alive & generations, as needed).
 
 The simulation can be stopped before it's completed by terminating the program, closing the window, or pressing the Escape key.
 
